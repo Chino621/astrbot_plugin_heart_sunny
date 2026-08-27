@@ -1,0 +1,50 @@
+{
+  "mode": {
+    "name": "报告生成模式",
+    "description": "选择测评结束后的报告生成方式。",
+    "type": "string",
+    "default": "interpretation",
+    "options": [
+      "pure_scoring",
+      "interpretation"
+    ]
+  },
+  "provider_id": {
+    "name": "解读模型",
+    "description": "留空则使用默认对话模型。可以填入特定的模型 Provider ID。",
+    "type": "string",
+    "default": ""
+  },
+  "interpretation_prompt": {
+    "name": "AI解读提示词",
+    "description": "用于生成解读报告的系统提示词。",
+    "type": "string",
+    "default": "你是一位专业的心理助手。请根据量表名称和得分报告，为用户提供一份温暖、专业且具有建设性的心理健康解读报告。要求语气柔和，像是在进行面对面的心理咨询。必须包含免责声明。"
+  },
+  "answer_timeout": {
+    "name": "答题限时(秒)",
+    "description": "用户超过此时间未答题将自动提醒或取消。",
+    "type": "int",
+    "default": 180
+  },
+  "daily_tips": {
+    "name": "心理建议预设库",
+    "description": "每日建议的随机池。",
+    "type": "list",
+    "default": [
+      "今天的你已经很努力了，休息一下吧。",
+      "深呼吸，感受当下的空气。",
+      "哪怕只是一点点进步，也值得为自己鼓掌。",
+      "世界欠你的温柔，我会补给你。",
+      "去看看窗外的云吧，它们也很自由。"
+    ]
+  },
+  "author_quotes": {
+    "name": "作者的话预设库",
+    "description": "随机返回的一条短句或语录。",
+    "type": "list",
+    "default": [
+      "作者还没有写下任何语录哦。"
+    ]
+  }
+}

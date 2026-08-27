@@ -1,4 +1,6 @@
-# 心晴助手 (HeartSunny)(注:本插件由Deepseek和Gemini联合开发)
+# 心晴助手 (HeartSunny)
+
+(注:本插件由Deepseek和Gemini联合开发)
 
 本项目为非商业、学术/公益用途。
 部分量表题库来源于公开文献。

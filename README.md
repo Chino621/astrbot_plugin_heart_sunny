@@ -1,8 +1,31 @@
 # 心晴助手 (HeartSunny)
 
+![version](https://img.shields.io/badge/version-v1.0.6-blue)
+![AstrBot](https://img.shields.io/badge/AstrBot-plugin-1f6feb)
+![license](https://img.shields.io/badge/license-MIT-green)
+
 > “希望借助这个插件帮助到大家”
 
 心晴助手是一款专为 AstrBot 设计的心理健康辅助插件。在海平面上升、世界喧嚣的时代，我们希望通过专业量表测评、情绪打卡与 AI 温情解读，为你提供一个安静、专业且温暖的心灵避风港。
+
+---
+
+## 🆕 最近更新 · v1.0.6（2026-09-16）
+
+### 🐛 修复
+- **超时提醒此前从未生效**：使用了不存在的 `event.bot` / `event.unified_msg_event`，异常被静默吞掉。已改为 `context.send_message(event.unified_msg_origin, MessageChain([...]))`。
+- **填写「解读模型」后测评崩溃**：调用了不存在的 `context.get_provider()`，且位于 `try` 之外。已改为 `context.get_provider_by_id()`。
+- **LES 量表静默无响应**：`les_impact` / `les_duration` 输入越界时无任何提示，已补充。
+
+### ✨ 变更
+- **每道题都显示选项说明**（重要）：原先 1-4 的含义只在「量表简介」页说明一次，答题时不再显示。
+  而 SDS / SAS 等量表有 **10 道正面表述题需要反向计分**（如「我早晨心情最好」「我对将来抱有希望」），方向与直觉相反，极易答反并造成**评分虚高**。
+
+  > 实测：同一个「轻度抑郁」的作答者 —— 正确作答 **50 分（正常）**；把 10 道正面题当症状答 → **75 分（重度）**。
+
+  现改为每道题都附带完整选项说明，覆盖全部 11 个问卷型量表。
+
+> 📝 完整版本历史见 [**CHANGELOG.md**](./CHANGELOG.md)
 
 ---
 
@@ -69,7 +92,7 @@
 
 ## 🤝 联系我们
 
-- **作者**：Chino    qq@3077375944
+- **作者**：chino621    qq@3077375944
 - **官方交流群**：[1009256321](https://qm.qq.com/cgi-bin/qm/qr?k=YOUR_KEY) (QQ群)
 - **反馈与建议**：欢迎通过 GitHub Issues 提交你的宝贵意见。
 

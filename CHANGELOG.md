@@ -1,10 +1,11 @@
 # 更新日志 (CHANGELOG)
 
-## [v1.0.6] - 2026-09-16
+## [v1.0.7] - 2026-09-16
 
 ### 修复
 - **修复超时提醒失效**：`_start_timeout_monitor` 中使用了不存在的 `event.bot` 与 `event.unified_msg_event`，导致「长时间未回复」的提醒**从未成功发出**（异常被 `except` 静默吞掉）。改为 `self.context.send_message(event.unified_msg_origin, MessageChain([...]))`，并补上 `MessageChain` 导入（来自 `astrbot.api.event`）。
 - **修复指定解读模型后崩溃**：`_get_llm_interpretation` 调用了不存在的方法 `context.get_provider()`，且该调用位于 `try` 之外。一旦在配置中填写 `provider_id`，测评报告将因 `AttributeError` 无法发出。已改为 `context.get_provider_by_id()`。
+- **修复测评答题中断**：优化答题流程的模块依赖，避免运行期异常导致的答题中断。
 - **修复 LES 量表静默无响应**：`les_impact` / `les_duration` 阶段输入超范围数字时直接 `return`，用户收不到任何提示。现补充「请输入 0-4 / 1-3 的数字」提示。
 
 ### 变更
@@ -18,7 +19,7 @@
 
   现改为**每道题都附带完整选项说明**，文案自动从 `scales.py` 的 `intro` 中提取，覆盖全部 11 个问卷型量表（LES 为特殊流程，走兜底提示）。
 
-- **统一版本号与署名**：`metadata.yaml`（原 v1.0.1）与 `@register`（原 v1.0.4）统一为 **v1.0.6**；作者统一为 `chino621`。
+- **统一版本号与署名**：`metadata.yaml`（原 v1.0.1）与 `@register`（原 v1.0.4）统一为 **v1.0.7**；作者统一为 `chino621`。
 
 ## [v1.0.1] - 2026-08-27
 ### 变更

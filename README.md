@@ -1,6 +1,6 @@
 # 心晴助手 (HeartSunny)
 
-![version](https://img.shields.io/badge/version-v1.0.6-blue)
+![version](https://img.shields.io/badge/version-v1.0.7-blue)
 ![AstrBot](https://img.shields.io/badge/AstrBot-plugin-1f6feb)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
@@ -10,7 +10,7 @@
 
 ---
 
-## 🆕 最近更新 · v1.0.6（2026-09-16）
+## 🆕 最近更新 · v1.0.7（2026-09-16）
 
 ### 🐛 修复
 - **超时提醒此前从未生效**：使用了不存在的 `event.bot` / `event.unified_msg_event`，异常被静默吞掉。已改为 `context.send_message(event.unified_msg_origin, MessageChain([...]))`。

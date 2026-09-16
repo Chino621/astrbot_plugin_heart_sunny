@@ -1,6 +1,6 @@
 name: astrbot_plugin_heart_sunny
 desc: 心晴助手 - 心理测评与情绪关怀工具。支持 SDS, SAS, SCL-90 等 12 种专业量表测评。
 help: 使用 /测评 查看量表列表，使用 /打卡 记录今日心情，使用 /心情 查看心情趋势。
-version: v1.0.6
+version: v1.0.7
 author: chino621
 repo: https://github.com/ASTRBOT-PLUGINS/astrbot_plugin_heart_sunny

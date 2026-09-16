@@ -44,7 +44,7 @@ SCALE_META = {
     "astrbot_plugin_heart_sunny",
     "chino621",
     "心晴助手 - 心理测评与情绪关怀工具。",
-    "v1.0.6"
+    "v1.0.7"
 )
 class HeartSunnyPlugin(Star):
     def __init__(self, context: Context, config: dict | None = None):

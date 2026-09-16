@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, List
 
 from astrbot.api import logger
-from astrbot.api.event import AstrMessageEvent, filter
+from astrbot.api.event import AstrMessageEvent, filter, MessageChain
 from astrbot.api.star import Context, Star, register, StarTools
 from astrbot.api.message_components import Plain
 
@@ -41,9 +41,9 @@ SCALE_META = {
 
 @register(
     "astrbot_plugin_heart_sunny",
-    "HeartSunny",
+    "chino621",
     "心晴助手 - 心理测评与情绪关怀工具。",
-    "v1.0.2"
+    "v1.0.6"
 )
 class HeartSunnyPlugin(Star):
     def __init__(self, context: Context, config: dict | None = None):
@@ -87,6 +87,18 @@ class HeartSunnyPlugin(Star):
         filled = max(0, min(length, filled))
         return "■" * filled + "□" * (length - filled)
 
+    def _options_line(self, data: dict) -> str:
+        """从量表 intro 中抽取选项说明，供每题重复展示"""
+        intro = data.get("intro", "") or ""
+        m = re.search(r"[（(]([^（）()]*=[^（）()]*)[）)]", intro)
+        if not m:
+            lo, hi = data.get("min_score", 0), data.get("max_score", 1)
+            return f"（请回复 {lo}-{hi} 之间的数字）"
+        opt = m.group(1)
+        for ch in ("，", ",", "、"):
+            opt = opt.replace(ch, "  ")
+        return "（" + re.sub(r"\s+", " ", opt).strip() + "）"
+
     def _start_timeout_monitor(self, event: AstrMessageEvent, user_id: str):
         if user_id in self.monitor_tasks:
             self.monitor_tasks[user_id].cancel()
@@ -97,7 +109,7 @@ class HeartSunnyPlugin(Star):
                 await asyncio.sleep(timeout / 2)
                 if user_id in self.sessions and time.time() - self.sessions[user_id]["last_action_time"] >= timeout / 2:
                     msg = "检测到您长时间未回复。如果不想继续测评，回复“取消”即可终止。"
-                    await event.bot.send_message(event.unified_msg_event, [Plain(msg)])
+                    await self.context.send_message(event.unified_msg_origin, MessageChain([Plain(msg)]))
             except asyncio.CancelledError:
                 pass
             except Exception as e:
@@ -213,6 +225,8 @@ class HeartSunnyPlugin(Star):
         if event.get_group_id(): return
         
         text = event.message_str.strip()
+        if not text: return # 过滤空消息
+        
         commands = ["测评", "打卡", "心情", "建议", "作者的话", "查看进度", "急救", "取消"]
         if text.startswith(("/", "!")) or text in commands or any(text.startswith(cmd) for cmd in commands):
             return
@@ -251,7 +265,8 @@ class HeartSunnyPlugin(Star):
                     session["state"] = "les_indices"
                     yield event.plain_result(f"{data['name']}\n请回复发生过的事件编号（如 1,5）：\n" + "\n".join([f"{i+1}. {item}" for i, item in enumerate(data["items"])]))
                 else:
-                    yield event.plain_result(f"测评开始！\n\n第 1 题：{data['items'][0]}")
+                    session["options_line"] = self._options_line(data)
+                    yield event.plain_result(f"测评开始！\n\n第 1 题：{data['items'][0]}\n{self._options_line(data)}")
                 self._start_timeout_monitor(event, user_id)
             else:
                 yield event.plain_result("确定要开始吗？回复“开始”确认，回复“取消”退出。")
@@ -289,12 +304,16 @@ class HeartSunnyPlugin(Star):
                     session.update({"current_les_data": {"nature": val}, "state": "les_impact"})
                     yield event.plain_result("2. 影响程度：0=无，1=轻，2=中，3=重，4=极重")
                 elif session["state"] == "les_impact":
-                    if not (0 <= val <= 4): return
+                    if not (0 <= val <= 4):
+                        yield event.plain_result("请输入 0 到 4 的数字。")
+                        return
                     session["current_les_data"]["impact"] = val
                     session["state"] = "les_duration"
                     yield event.plain_result("2. 持续时间：1=半年内，2=一年内，3=二年以上")
                 elif session["state"] == "les_duration":
-                    if not (1 <= val <= 3): return
+                    if not (1 <= val <= 3):
+                        yield event.plain_result("请输入 1 到 3 的数字。")
+                        return
                     session["current_les_data"]["duration"] = val
                     session["state"] = "les_frequency"
                     yield event.plain_result("4. 发生次数（数字）：")
@@ -328,7 +347,7 @@ class HeartSunnyPlugin(Star):
                 self._start_timeout_monitor(event, user_id)
 
                 if session["current_index"] < len(session["items"]):
-                    yield event.plain_result(f"第 {session['current_index'] + 1} 题：{session['items'][session['current_index']]}")
+                    yield event.plain_result(f"第 {session['current_index'] + 1} 题：{session['items'][session['current_index']]}\n{session.get('options_line', '')}")
                 else:
                     async for res in self._finish_assessment(event, user_id): yield res
             except ValueError: yield event.plain_result(f"请输入数字 {session['min_score']}-{session['max_score']}。")
@@ -421,7 +440,7 @@ class HeartSunnyPlugin(Star):
         
         provider = None
         if provider_id:
-            provider = self.context.get_provider(provider_id)
+            provider = self.context.get_provider_by_id(provider_id)
         
         if not provider:
             provider = self.context.get_using_provider()
